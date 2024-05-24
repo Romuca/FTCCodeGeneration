@@ -1,8 +1,6 @@
-from flet import *
-from math import pi
 import flet as ft
-import PIL
-from time import sleep
+from flet import *
+
 import config_classes as cc
 
 
@@ -98,8 +96,7 @@ def main(page: Page):
         programs = page.client_storage.get("isFirstStart")
 
     page.window_resizable = True
-    page.window_height = 700
-    page.window_width = 500
+    page.window_maximized = True
     page.window_min_height = 650
     page.window_min_width = 450
 
@@ -419,31 +416,38 @@ def main(page: Page):
         _configure_device_column.controls[1].color = ColorScheme.primary
 
         if selected_device == "Control Hub":
-            _home_create_body.controls[0].tabs[1].content.controls[1].content.controls[1].title.color = ColorScheme.primary
+            _home_create_body.controls[0].tabs[1].content.controls[1].content.controls[
+                1].title.color = ColorScheme.primary
         else:
-            _home_create_body.controls[0].tabs[1].content.controls[1].content.controls[2].title.color = ColorScheme.primary
+            _home_create_body.controls[0].tabs[1].content.controls[1].content.controls[
+                2].title.color = ColorScheme.primary
         page.update()
 
-
-
-
+    def configuration_dropdown_changed(e):
+        e.control.parent.controls[0].value = "ura"
 
     def tile_clicked(e):
-
         if _configure_device_column.controls[1].value != "No devices selected":
             _select_device_to_configure_container.content.controls.clear()
             _select_device_to_configure_container.content.controls.append(_edit_configuration_column)
-            _edit_configuration_column.controls[0].value = e.control.title.value
+            _select_device_to_configure_container.content.controls[0].controls[0].controls.append(
+                _config_control_buttons)
+            _edit_configuration_column.controls[0].controls[0].value = e.control.title.value
             _configure_device_column.controls[1].color = ColorScheme.primary
         else:
             _configure_device_column.controls[1].color = "#ce2029"
 
+        if len(_edit_configuration_column.controls) > 1:
+            _edit_configuration_column.controls.pop()
+
+        if device_configure_title.value == "Motors":
+            _edit_configuration_column.controls.append(_motor_tile_row)
+        elif device_configure_title.value == "Servos":
+            _edit_configuration_column.controls.append(_servo_tile_row)
+        elif device_configure_title.value == "Digital Devices":
+            _edit_configuration_column.controls.append(_digital_devices_tile_row)
 
         page.update()
-
-
-
-
 
     selected_paint = ft.Paint(stroke_width=5, style=ft.PaintingStyle.STROKE, color="#009900")
     unselected_paint = ft.Paint(style=ft.PaintingStyle.FILL, color=colors.TRANSPARENT)
@@ -616,7 +620,6 @@ def main(page: Page):
         expand=True
     )
 
-
     select_device_to_configure_title = Text("Select a device to configure:", font_family="InterMedium", size=20)
     device_configure_title = Text("Configure Device:", font_family="InterMedium", size=20)
 
@@ -702,6 +705,16 @@ def main(page: Page):
         on_click=tile_clicked
     )
 
+    save_configuration = ElevatedButton(icon=icons.SAVE_SHARP, color="#fad201", text="Save")
+    cancel_configuration = ElevatedButton(color="#fad201", text="Cancel")
+
+    _config_control_buttons = Row(
+        [
+            save_configuration,
+            cancel_configuration
+        ],
+    )
+
     _device_list_column = Column(
         [
             configure_motors,
@@ -739,29 +752,445 @@ def main(page: Page):
         expand=True,
     )
 
-    _device_tile_row = Column(
+    _motor_tile_row = Column(
         [
             Row(
                 [
-                    Text("0", size=18, font_family="InterMedium"),
-                    Dropdown(
-                        width=100,
-                        options=[
-                            ft.dropdown.Option("Red"),
-                            ft.dropdown.Option("Green"),
-                            ft.dropdown.Option("Blue"),
-                        ],
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("0", size=18, font_family="InterMedium"),
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
                     )
                 ]
             ),
-        ]
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("1", size=18, font_family="InterMedium"),
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("2", size=18, font_family="InterMedium"),
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("3", size=18, font_family="InterMedium"),
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+        ],
+        expand=True,
+        scroll="auto"
+    )
+
+    _servo_tile_row = Column(
+        [
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("0", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Continuous Rotation Servo"),
+                                            dropdown.Option("REV Blinkin LED Driver"),
+                                            dropdown.Option("REV SPARKmini Controller"),
+                                            dropdown.Option("Servo")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("1", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Continuous Rotation Servo"),
+                                            dropdown.Option("REV Blinkin LED Driver"),
+                                            dropdown.Option("REV SPARKmini Controller"),
+                                            dropdown.Option("Servo")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("2", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Continuous Rotation Servo"),
+                                            dropdown.Option("REV Blinkin LED Driver"),
+                                            dropdown.Option("REV SPARKmini Controller"),
+                                            dropdown.Option("Servo")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("3", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Continuous Rotation Servo"),
+                                            dropdown.Option("REV Blinkin LED Driver"),
+                                            dropdown.Option("REV SPARKmini Controller"),
+                                            dropdown.Option("Servo")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("4", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Continuous Rotation Servo"),
+                                            dropdown.Option("REV Blinkin LED Driver"),
+                                            dropdown.Option("REV SPARKmini Controller"),
+                                            dropdown.Option("Servo")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("5", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Continuous Rotation Servo"),
+                                            dropdown.Option("REV Blinkin LED Driver"),
+                                            dropdown.Option("REV SPARKmini Controller"),
+                                            dropdown.Option("Servo")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+        ],
+        expand=True,
+        scroll="auto"
+    )
+
+    _digital_devices_tile_row = Column(
+        [
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("0", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Digital Device"),
+                                            dropdown.Option("LED"),
+                                            dropdown.Option("REV Touch Sensor")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("1", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Digital Device"),
+                                            dropdown.Option("LED"),
+                                            dropdown.Option("REV Touch Sensor")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("2", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Digital Device"),
+                                            dropdown.Option("LED"),
+                                            dropdown.Option("REV Touch Sensor")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("3", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Digital Device"),
+                                            dropdown.Option("LED"),
+                                            dropdown.Option("REV Touch Sensor")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("4", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Digital Device"),
+                                            dropdown.Option("LED"),
+                                            dropdown.Option("REV Touch Sensor")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("5", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Digital Device"),
+                                            dropdown.Option("LED"),
+                                            dropdown.Option("REV Touch Sensor")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("6", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Digital Device"),
+                                            dropdown.Option("LED"),
+                                            dropdown.Option("REV Touch Sensor")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("7", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Digital Device"),
+                                            dropdown.Option("LED"),
+                                            dropdown.Option("REV Touch Sensor")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="Enter a device name")
+                        ]
+                    )
+                ]
+            ),
+        ],
+        expand=True,
+        scroll="auto"
     )
 
     _edit_configuration_column = Column(
         [
-            device_configure_title,
-            _device_tile_row
-        ]
+            Column([device_configure_title]),
+        ],
+        expand=True,
     )
 
     _select_device_to_configure_container = Container(
@@ -854,7 +1283,6 @@ def main(page: Page):
         ],
         on_change=lambda e: print("Selected destination:", e.control.selected_index),
     )
-
 
     _create_body_container = Container(
         width=800,
