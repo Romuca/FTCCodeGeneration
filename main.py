@@ -1,8 +1,6 @@
 import flet as ft
 from flet import *
 
-import config_classes as cc
-
 
 def main(page: Page):
     page.fonts = {
@@ -14,13 +12,14 @@ def main(page: Page):
 
     """CONFIGURATION CLASSES"""
 
-    motors = cc.DeviceList
-    servos = cc.DeviceList
-    digital_devices = cc.DeviceList
-    i2c0 = cc.DeviceList
-    i2c1 = cc.DeviceList
-    i2c2 = cc.DeviceList
-    i2c3 = cc.DeviceList
+    motors = ['', '', '', '']
+    servos = []
+    digital_devices = []
+    analog_input_devices = []
+    i2c0 = []
+    i2c1 = []
+    i2c2 = []
+    i2c3 = []
 
     expansion_dict = {
         "motors": motors,
@@ -93,7 +92,7 @@ def main(page: Page):
         page.client_storage.set("programs", [])
         programs = []
     else:
-        programs = page.client_storage.get("isFirstStart")
+        programs = page.client_storage.get("programs")
 
     page.window_resizable = True
     page.window_maximized = True
@@ -408,6 +407,185 @@ def main(page: Page):
         if is_position_changed and is_rotation_changed:
             button_advanced_settings.disabled = False
 
+    def configuration_dropdown_changed(e):
+        if e.control.value != "Nothing":
+            e.control.parent.parent.controls[1].disabled = False
+            e.control.parent.parent.controls[1].label = "Enter a device name"
+        else:
+            e.control.parent.parent.controls[1].disabled = True
+            e.control.parent.parent.controls[1].label = "NO DEVICE ATTACHED"
+            e.control.parent.parent.controls[1].value = ''
+
+        page.update()
+
+    def close_configuration(e):
+        _expansion_hub_tile.title.color = ColorScheme.primary
+        _control_hub_tile.title.color = ColorScheme.primary
+        _configure_device_column.controls[0].value = "Configure Device:"
+        _configure_device_column.controls[1].value = "No device selected"
+        _select_device_to_configure_container.content.controls[0] = Column(
+            [
+                select_device_to_configure_title,
+                _expansion_hub_tile,
+                _control_hub_tile
+            ],
+            alignment=MainAxisAlignment.CENTER,
+            horizontal_alignment=CrossAxisAlignment.CENTER,
+        )
+
+        page.update()
+
+    def save_config_data(e):
+        global motors, servos, digital_devices, analog_input_devices, i2c0, i2c1, i2c2, i2c3, control_dict, expansion_dict
+
+        motors = [
+            _motor_tile_row.controls[0].controls[0].controls[1].value,
+            _motor_tile_row.controls[2].controls[0].controls[1].value,
+            _motor_tile_row.controls[4].controls[0].controls[1].value,
+            _motor_tile_row.controls[6].controls[0].controls[1].value,
+        ]
+
+        servos = [
+            [_servo_tile_row.controls[0].controls[0].controls[0].controls[1].value,
+             _servo_tile_row.controls[0].controls[0].controls[1].value],
+            [_servo_tile_row.controls[2].controls[0].controls[0].controls[1].value,
+             _servo_tile_row.controls[2].controls[0].controls[1].value],
+            [_servo_tile_row.controls[4].controls[0].controls[0].controls[1].value,
+             _servo_tile_row.controls[4].controls[0].controls[1].value],
+            [_servo_tile_row.controls[6].controls[0].controls[0].controls[1].value,
+             _servo_tile_row.controls[6].controls[0].controls[1].value],
+            [_servo_tile_row.controls[8].controls[0].controls[0].controls[1].value,
+             _servo_tile_row.controls[8].controls[0].controls[1].value],
+            [_servo_tile_row.controls[10].controls[0].controls[0].controls[1].value,
+             _servo_tile_row.controls[10].controls[0].controls[1].value]
+        ]
+
+        digital_devices = [
+            [_digital_devices_tile_row.controls[0].controls[0].controls[0].controls[1].value,
+             _digital_devices_tile_row.controls[0].controls[0].controls[1].value],
+            [_digital_devices_tile_row.controls[2].controls[0].controls[0].controls[1].value,
+             _digital_devices_tile_row.controls[2].controls[0].controls[1].value],
+            [_digital_devices_tile_row.controls[4].controls[0].controls[0].controls[1].value,
+             _digital_devices_tile_row.controls[4].controls[0].controls[1].value],
+            [_digital_devices_tile_row.controls[6].controls[0].controls[0].controls[1].value,
+             _digital_devices_tile_row.controls[6].controls[0].controls[1].value],
+            [_digital_devices_tile_row.controls[8].controls[0].controls[0].controls[1].value,
+             _digital_devices_tile_row.controls[8].controls[0].controls[1].value],
+            [_digital_devices_tile_row.controls[10].controls[0].controls[0].controls[1].value,
+             _digital_devices_tile_row.controls[10].controls[0].controls[1].value],
+            [_digital_devices_tile_row.controls[12].controls[0].controls[0].controls[1].value,
+             _digital_devices_tile_row.controls[12].controls[0].controls[1].value],
+            [_digital_devices_tile_row.controls[14].controls[0].controls[0].controls[1].value,
+             _digital_devices_tile_row.controls[14].controls[0].controls[1].value]
+        ]
+
+        analog_input_devices = [
+            [_analog_input_tile_row.controls[0].controls[0].controls[0].controls[1].value,
+             _analog_input_tile_row.controls[0].controls[0].controls[1].value],
+            [_analog_input_tile_row.controls[2].controls[0].controls[0].controls[1].value,
+             _analog_input_tile_row.controls[2].controls[0].controls[1].value],
+            [_analog_input_tile_row.controls[4].controls[0].controls[0].controls[1].value,
+             _analog_input_tile_row.controls[4].controls[0].controls[1].value],
+            [_analog_input_tile_row.controls[6].controls[0].controls[0].controls[1].value,
+             _analog_input_tile_row.controls[6].controls[0].controls[1].value],
+        ]
+
+        i2c0, i2c1, i2c2, i2c3 = [], [], [], []
+
+        for control in range(len(_i2c0_tile_row.controls)):
+            i2c0.append([_i2c0_tile_row.controls[control].controls[0].controls[0].controls[1].value,
+                         _i2c0_tile_row.controls[control].controls[0].controls[1].value])
+
+        for control in range(len(_i2c1_tile_row.controls)):
+            i2c1.append([_i2c1_tile_row.controls[control].controls[0].controls[0].controls[1].value,
+                         _i2c1_tile_row.controls[control].controls[0].controls[1].value])
+
+        for control in range(len(_i2c2_tile_row.controls)):
+            i2c2.append([_i2c2_tile_row.controls[control].controls[0].controls[0].controls[1].value,
+                         _i2c2_tile_row.controls[control].controls[0].controls[1].value])
+
+        for control in range(len(_i2c3_tile_row.controls)):
+            i2c3.append([_i2c3_tile_row.controls[control].controls[0].controls[0].controls[1].value,
+                         _i2c3_tile_row.controls[control].controls[0].controls[1].value])
+
+        if device_name_during_configuration.value == "Control Hub":
+            control_dict = {
+                "motors": motors,
+                "servos": servos,
+                "digital_devices": digital_devices,
+                "i2c0": i2c0,
+                "i2c1": i2c1,
+                "i2c2": i2c2,
+                "i2c3": i2c3
+            }
+        else:
+            expansion_dict = {
+                "motors": motors,
+                "servos": servos,
+                "digital_devices": digital_devices,
+                "i2c0": i2c0,
+                "i2c1": i2c1,
+                "i2c2": i2c2,
+                "i2c3": i2c3
+            }
+
+        close_configuration(None)
+        page.update()
+
+    def load_config_data():
+        if device_name_during_configuration.value == "Control Hub":
+            for i in range(0, 7, 2):
+                _motor_tile_row.controls[i].controls[0].controls[1].value = control_dict['motors'][int(i / 2)]
+        else:
+            for i in range(0, 7, 2):
+                _motor_tile_row.controls[i].controls[0].controls[1].value = expansion_dict['motors'][int(i / 2)]
+
+        page.update()
+
+    def i2c_device_add(e):
+        _edit_configuration_column.controls[len(_edit_configuration_column.controls) - 1].controls.append(
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text(
+                                        value=(len(_edit_configuration_column.controls[
+                                                       len(_edit_configuration_column.controls) - 1].controls)),
+                                        size=18,
+                                        font_family="InterMedium"
+                                    ),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Adafruit Color Sensor"),
+                                            dropdown.Option("HuskyLens"),
+                                            dropdown.Option("MR Color Sensor"),
+                                            dropdown.Option("MR Compass Sensor"),
+                                            dropdown.Option("MR Gyro"),
+                                            dropdown.Option("MR IR Seeker v3"),
+                                            dropdown.Option("MR Range Sensor"),
+                                            dropdown.Option("REV 2M Distance Sensor"),
+                                            dropdown.Option("REV Color Sensor V3"),
+                                            dropdown.Option("REV Color/Range Sensor"),
+                                            dropdown.Option("REV internal IMU")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    ),
+                                    IconButton(icon=icons.DELETE_SHARP, icon_color="#fad201")
+                                ]
+                            ),
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
+                        ]
+                    )
+                ]
+            )
+        )
+
+        page.update()
+
     def device_tile_clicked(e):
         e.control.title.color = "#f4c430"
         selected_device = e.control.title.value
@@ -416,18 +594,15 @@ def main(page: Page):
         _configure_device_column.controls[1].color = ColorScheme.primary
 
         if selected_device == "Control Hub":
-            _home_create_body.controls[0].tabs[1].content.controls[1].content.controls[
-                1].title.color = ColorScheme.primary
+            _expansion_hub_tile.title.color = ColorScheme.primary
         else:
-            _home_create_body.controls[0].tabs[1].content.controls[1].content.controls[
-                2].title.color = ColorScheme.primary
+            _control_hub_tile.title.color = ColorScheme.primary
+
+        load_config_data()
         page.update()
 
-    def configuration_dropdown_changed(e):
-        e.control.parent.controls[0].value = "ura"
-
     def tile_clicked(e):
-        if _configure_device_column.controls[1].value != "No devices selected":
+        if _expansion_hub_tile.title.color == "#f4c430" or _control_hub_tile.title.color == "#f4c430":
             _select_device_to_configure_container.content.controls.clear()
             _select_device_to_configure_container.content.controls.append(_edit_configuration_column)
             _select_device_to_configure_container.content.controls[0].controls[0].controls.append(
@@ -440,12 +615,32 @@ def main(page: Page):
         if len(_edit_configuration_column.controls) > 1:
             _edit_configuration_column.controls.pop()
 
+        if len(_edit_configuration_column.controls[0].controls) > 2:
+            _edit_configuration_column.controls[0].controls.pop()
+
+        if "I2C" in device_configure_title.value and len(_config_control_buttons.controls) < 3:
+            _config_control_buttons.controls.append(add_configuration)
+        elif ("I2C" not in device_configure_title.value and len(_config_control_buttons.controls) == 3) or len(
+                _config_control_buttons.controls) > 3:
+            _config_control_buttons.controls.pop()
+
+
         if device_configure_title.value == "Motors":
             _edit_configuration_column.controls.append(_motor_tile_row)
         elif device_configure_title.value == "Servos":
             _edit_configuration_column.controls.append(_servo_tile_row)
         elif device_configure_title.value == "Digital Devices":
             _edit_configuration_column.controls.append(_digital_devices_tile_row)
+        elif device_configure_title.value == "Analog Input Devices":
+            _edit_configuration_column.controls.append(_analog_input_tile_row)
+        elif device_configure_title.value == "I2C Bus 0":
+            _edit_configuration_column.controls.append(_i2c0_tile_row)
+        elif device_configure_title.value == "I2C Bus 1":
+            _edit_configuration_column.controls.append(_i2c1_tile_row)
+        elif device_configure_title.value == "I2C Bus 2":
+            _edit_configuration_column.controls.append(_i2c2_tile_row)
+        elif device_configure_title.value == "I2C Bus 3":
+            _edit_configuration_column.controls.append(_i2c3_tile_row)
 
         page.update()
 
@@ -602,7 +797,8 @@ def main(page: Page):
     )
 
     def create_program(e):
-        programs.append([new_program_title])
+        programs.append(new_program_title)
+        page.client_storage.set("programs", programs)
 
     page.appbar = CupertinoAppBar(
         bgcolor=colors.SURFACE_VARIANT,
@@ -669,12 +865,6 @@ def main(page: Page):
         on_click=tile_clicked
     )
 
-    configure_pvm = ListTile(
-        title=ft.Text("PVM Devices"),
-        subtitle=ft.Text("Configure PVM Devices"),
-        on_click=tile_clicked
-    )
-
     configure_analog = ListTile(
         title=ft.Text("Analog Input Devices"),
         subtitle=ft.Text("Configure Analog Input Devices"),
@@ -705,8 +895,9 @@ def main(page: Page):
         on_click=tile_clicked
     )
 
-    save_configuration = ElevatedButton(icon=icons.SAVE_SHARP, color="#fad201", text="Save")
-    cancel_configuration = ElevatedButton(color="#fad201", text="Cancel")
+    save_configuration = ElevatedButton(icon=icons.SAVE_SHARP, color="#fad201", text="Save", on_click=save_config_data)
+    cancel_configuration = ElevatedButton(color="#fad201", text="Cancel", on_click=close_configuration)
+    add_configuration = ElevatedButton(icon=icons.ADD_SHARP, color="#fad201", text="Add", on_click=i2c_device_add)
 
     _config_control_buttons = Row(
         [
@@ -723,8 +914,6 @@ def main(page: Page):
             Divider(thickness=2, height=8),
             configure_dig_devices,
             Divider(thickness=2, height=8),
-            configure_pvm,
-            Divider(thickness=2, height=8),
             configure_analog,
             Divider(thickness=2, height=8),
             configure_i2c0,
@@ -738,7 +927,7 @@ def main(page: Page):
         alignment=MainAxisAlignment.CENTER,
         horizontal_alignment=CrossAxisAlignment.CENTER,
         expand=True,
-        scroll="auto"
+        scroll="auto",
     )
 
     _configure_device_column = Column(
@@ -840,7 +1029,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -866,7 +1055,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -892,7 +1081,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -918,7 +1107,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -944,7 +1133,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -970,7 +1159,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -1001,7 +1190,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -1026,7 +1215,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -1051,7 +1240,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -1076,7 +1265,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -1101,7 +1290,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -1126,7 +1315,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -1151,7 +1340,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -1176,7 +1365,7 @@ def main(page: Page):
                                     )
                                 ]
                             ),
-                            TextField(label="Enter a device name")
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
                         ]
                     )
                 ]
@@ -1185,6 +1374,117 @@ def main(page: Page):
         expand=True,
         scroll="auto"
     )
+
+    _analog_input_tile_row = Column(
+        [
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("0", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Analog Input"),
+                                            dropdown.Option("MR Optical Distance Sensor"),
+                                            dropdown.Option("MR Touch Sensor")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("1", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Analog Input"),
+                                            dropdown.Option("MR Optical Distance Sensor"),
+                                            dropdown.Option("MR Touch Sensor")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("2", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Analog Input"),
+                                            dropdown.Option("MR Optical Distance Sensor"),
+                                            dropdown.Option("MR Touch Sensor")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
+                        ]
+                    )
+                ]
+            ),
+            Divider(thickness=20),
+            Row(
+                [
+                    Column(
+                        [
+                            Row(
+                                [
+                                    Text("3", size=18, font_family="InterMedium"),
+                                    Dropdown(
+                                        options=[
+                                            dropdown.Option("Nothing"),
+                                            dropdown.Option("Analog Input"),
+                                            dropdown.Option("MR Optical Distance Sensor"),
+                                            dropdown.Option("MR Touch Sensor")
+                                        ],
+                                        value="Nothing",
+                                        on_change=configuration_dropdown_changed
+                                    )
+                                ]
+                            ),
+                            TextField(label="NO DEVICE ATTACHED", disabled=True)
+                        ]
+                    )
+                ]
+            ),
+        ],
+        expand=True,
+        scroll="auto"
+    )
+
+    _i2c0_tile_row = Column(expand=True, scroll="auto")
+    _i2c1_tile_row = Column(expand=True, scroll="auto")
+    _i2c2_tile_row = Column(expand=True, scroll="auto")
+    _i2c3_tile_row = Column(expand=True, scroll="auto")
 
     _edit_configuration_column = Column(
         [
