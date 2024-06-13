@@ -1,6 +1,8 @@
 from flet import *
 
 
+# bruh
+
 def main(page: Page):
     selected_device = "none"
     page.fonts = {

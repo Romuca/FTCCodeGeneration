@@ -3,8 +3,7 @@
 /__pycache__
 /build
 /dist
-/main.spec
-/test.py
-/config_classes.py
-/program_data.txt
-/some_program.py
+test.py
+config_classes.py
+program_data.txt
+some_program.py

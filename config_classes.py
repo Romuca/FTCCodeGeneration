@@ -1,3 +1,4 @@
+# bruh
 class Device:
     port = 0
     device = ""
