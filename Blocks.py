@@ -1,142 +1,10 @@
-from abc import ABC, abstractmethod
-from math import pi
+from ConditionTypes import *
+from Units import *
 
 
 class Block(ABC):
     @abstractmethod
     def type(self): pass
-
-
-class ComparisonMark(ABC):
-    @abstractmethod
-    def return_mark(self): pass
-
-
-class Equal(ComparisonMark):
-    def return_mark(self):
-        return "Equal"
-
-
-class Smaller(ComparisonMark):
-    def return_mark(self):
-        return "Smaller"
-
-
-class Bigger(ComparisonMark):
-    def return_mark(self):
-        return "Bigger"
-
-
-class NotEqual(ComparisonMark):
-    def return_mark(self):
-        return "NotEqual"
-
-
-class BiggerEqual(ComparisonMark):
-    def return_mark(self):
-        return "BiggerEqual"
-
-
-class SmallerEqual(ComparisonMark):
-    def return_mark(self):
-        return "SmallerEqual"
-
-
-class Countable:
-    def __init__(self, count: int):
-        self.__count = count
-
-    def get_count(self):
-        return self.__count
-
-    def set_count(self, count):
-        self.__count = count
-
-    count = property(get_count, set_count)
-
-
-class Condition:
-    def __init__(self, input_value, comparison_mark: ComparisonMark, comparison_value):
-        self.__input_value = input_value
-        self.__comparison_mark = comparison_mark
-        self.__comparison_value = comparison_value
-
-    def get_input_value(self):
-        return self.__input_value
-
-    def set_input_value(self, input_value):
-        self.__input_value = input_value
-
-    def get_comparison_mark(self):
-        return self.__comparison_mark
-
-    def set_comparison_mark(self, comparison_mark):
-        self.__comparison_mark = comparison_mark
-
-    def get_comparison_value(self):
-        return self.__comparison_value
-
-    def set_comparison_value(self, comparison_value):
-        self.__comparison_value = comparison_value
-
-    input_value = property(get_input_value, set_input_value)
-    comparison_mark = property(get_comparison_mark, set_comparison_mark)
-    comparison_value = property(get_comparison_value, set_comparison_value)
-
-
-class Unit(ABC):
-    @abstractmethod
-    def return_k(self): pass
-
-
-class Centimeter(Unit):
-    k = 1
-
-    def return_k(self):
-        return self.k
-
-
-class Ticks(Unit):
-    k = None
-
-    def __init__(self, tpr: float, wheel_diameter: float):
-        self.__tpr = tpr
-        self.__wheel_diameter = wheel_diameter
-        self.k = self.__tpr / (pi * self.__wheel_diameter)
-
-    def get_wheel_d(self):
-        return self.__wheel_diameter
-
-    def set_wheel_d(self, wheel_diameter):
-        self.__wheel_diameter = wheel_diameter
-        self.k = self.__tpr / (pi * self.__wheel_diameter)
-
-    def get_tpr(self):
-        return self.__tpr
-
-    def set_tpr(self, tpr):
-        self.__tpr = tpr
-        self.k = self.__tpr / (pi * self.__wheel_diameter)
-
-    wheel_diameter = property(get_wheel_d, set_wheel_d)
-    tpr = property(get_tpr, set_tpr)
-
-    def return_k(self):
-        return self.k
-
-
-class Degrees(Unit):
-    angle_k = 1
-
-    def return_k(self):
-        return self.angle_k
-
-
-class Radians(Unit):
-    angle_k = 180 / pi
-
-    def return_k(self):
-        return self.angle_k
 
 
 class MoveStraight(Block):
@@ -295,7 +163,7 @@ class TelemetryAddData(Block):
     def type(self):
         return "TelemetryAddData"
 
-    def __init__(self, value: str, caption: str):
+    def __init__(self, caption: str, value):
         self.__caption = caption
         self.__value = value
 
@@ -407,8 +275,6 @@ class If(Block):
         return "If"
 
     def __init__(self, class_type: Condition, actions: list, else_actions: list):
-        if class_type is not Condition:
-            raise TypeError
         self.__actions = actions
         self.__else_actions = else_actions
         self.__class_type = class_type
@@ -434,25 +300,3 @@ class If(Block):
     actions = property(get_actions, set_actions)
     else_actions = property(get_else_actions, set_else_actions)
     class_type = property(get_class_type, set_class_type)
-
-
-block1 = Loop(  # example
-    Condition(123, Equal, 123),
-    [
-        ControlServo("asd", 0.1)
-    ]
-)
-
-block2 = Loop(
-    Countable(3),
-    [
-        MoveStraight(Centimeter, 30, 0.75),
-        Sleep(5)
-    ]
-)
-
-block3 = If(
-    Condition(450, Bigger, 499),
-    [],  # some actions
-    []  # another actions
-)
