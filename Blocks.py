@@ -179,30 +179,7 @@ class TelemetryAddData(Block):
     def set_value(self, value):
         self.__value = value
 
-    class GetDistance(Block):
-        def type(self):
-            return "GetDistance"
-
-        def __init__(self, name: str, units: Unit):
-            self.__units = units
-            self.__name = name
-
-        def get_units(self):
-            return self.__units
-
-        def set_units(self, units):
-            self.__units = units
-
-        def get_name(self):
-            return self.__name
-
-        def set_name(self, name):
-            self.__name = name
-
-        units = property(get_units, set_units)
-        name = property(get_name, set_name)
-
-    position = property(get_caption, set_caption)
+    caption = property(get_caption, set_caption)
     value = property(get_value, set_value)
 
 
